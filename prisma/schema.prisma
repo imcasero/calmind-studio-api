@@ -1,0 +1,115 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Team {
+  id        Int      @id @default(autoincrement())
+  name      String
+  logo      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  players   Player[]
+  coachId   Int?
+  coach     Coach?   @relation(fields: [coachId], references: [id])
+
+  // Relación con Match
+  matches1 Match[] @relation("MatchTeam1")
+  matches2 Match[] @relation("MatchTeam2")
+
+  @@unique([name])
+}
+
+model Player {
+  id        Int      @id @default(autoincrement())
+  name      String
+  teamId    Int
+  role      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  team      Team     @relation(fields: [teamId], references: [id])
+
+  @@unique([teamId, name])
+  @@index([teamId])
+}
+
+model Coach {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  team      Team[]
+}
+
+model Match {
+  id            Int      @id @default(autoincrement())
+  team1Id       Int
+  team2Id       Int
+  groupId       Int
+  scheduledDate DateTime
+  resultId      Int?     @unique
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  team1    Team       @relation("MatchTeam1", fields: [team1Id], references: [id])
+  team2    Team       @relation("MatchTeam2", fields: [team2Id], references: [id])
+  group    Group      @relation(fields: [groupId], references: [id])
+  result   Result?    @relation(fields: [resultId], references: [id])
+  Calendar Calendar[]
+
+  @@unique([team1Id, team2Id, scheduledDate])
+}
+
+model Group {
+  id         Int       @id @default(autoincrement())
+  name       String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  matches    Match[]
+  Division   Division? @relation(fields: [divisionId], references: [id])
+  divisionId Int?
+
+  @@unique([name])
+}
+
+model Calendar {
+  id        Int      @id @default(autoincrement())
+  matchId   Int
+  eventDate DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  match     Match    @relation(fields: [matchId], references: [id])
+}
+
+model Result {
+  id         Int      @id @default(autoincrement())
+  matchId    Int      @unique
+  scoreTeam1 Int
+  scoreTeam2 Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  Match      Match?
+}
+
+model Sudo {
+  id       Int    @id @default(autoincrement())
+  userName String @unique
+  password String
+}
+
+model Division {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  groups    Group[]
+
+  @@unique([name])
+}
