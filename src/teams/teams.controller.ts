@@ -6,8 +6,10 @@ import {
   Delete,
   Param,
   Body,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { TeamsService } from './teams.service';
+import { CreateTeamDto, UpdateTeamDto } from './dto/teams.dto';
 
 @Controller('teams')
 export class TeamsController {
@@ -19,25 +21,25 @@ export class TeamsController {
   }
 
   @Get(':id')
-  getTeamById(@Param('id') id: string) {
-    const team = this.teamsService.getTeamById(+id);
-    return team;
+  getTeamById(@Param('id', ParseIntPipe) id: number) {
+    return this.teamsService.getTeamById(id);
   }
 
   @Post()
-  createTeam(@Body('name') name: string) {
-    return this.teamsService.createTeam(name);
+  createTeam(@Body() createTeamDto: CreateTeamDto) {
+    return this.teamsService.createTeam(createTeamDto);
   }
 
   @Put(':id')
-  updateTeam(@Param('id') id: string, @Body('name') name: string) {
-    const updatedTeam = this.teamsService.updateTeam(+id, name);
-    return updatedTeam;
+  updateTeam(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateTeamDto: UpdateTeamDto,
+  ) {
+    return this.teamsService.updateTeam(id, updateTeamDto);
   }
 
   @Delete(':id')
-  deleteTeam(@Param('id') id: string) {
-    const deletedTeam = this.teamsService.deleteTeam(+id);
-    return deletedTeam;
+  deleteTeam(@Param('id', ParseIntPipe) id: number) {
+    return this.teamsService.deleteTeam(id);
   }
 }

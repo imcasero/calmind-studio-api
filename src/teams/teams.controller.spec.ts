@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TeamsController } from './teams.controller';
 import { TeamsService } from './teams.service';
 import { NotFoundException } from '@nestjs/common';
+import { CreateTeamDto, UpdateTeamDto } from './dto/teams.dto';
 
 describe('TeamsController', () => {
   let controller: TeamsController;
@@ -15,18 +16,30 @@ describe('TeamsController', () => {
           provide: TeamsService,
           useValue: {
             getAllTeams: jest.fn().mockReturnValue([]),
-            getTeamById: jest
-              .fn()
-              .mockImplementation((id: number) => ({ id, name: `Team ${id}` })),
+            getTeamById: jest.fn().mockImplementation((id: number) => ({
+              id,
+              name: `Team ${id}`,
+              logo: `Logo ${id}`,
+            })),
             createTeam: jest
               .fn()
-              .mockImplementation((name: string) => ({ id: 1, name })),
+              .mockImplementation((createTeamDto: CreateTeamDto) => ({
+                id: 1,
+                ...createTeamDto,
+              })),
             updateTeam: jest
               .fn()
-              .mockImplementation((id: number, name: string) => ({ id, name })),
-            deleteTeam: jest
-              .fn()
-              .mockImplementation((id: number) => ({ id, name: `Team ${id}` })),
+              .mockImplementation(
+                (id: number, updateTeamDto: UpdateTeamDto) => ({
+                  id,
+                  ...updateTeamDto,
+                }),
+              ),
+            deleteTeam: jest.fn().mockImplementation((id: number) => ({
+              id,
+              name: `Team ${id}`,
+              logo: `Logo ${id}`,
+            })),
           },
         },
       ],
@@ -46,32 +59,51 @@ describe('TeamsController', () => {
   });
 
   it('should return a team by ID', () => {
-    const id = '1';
-    expect(controller.getTeamById(id)).toEqual({ id: 1, name: 'Team 1' });
+    const id = 1;
+    expect(controller.getTeamById(id)).toEqual({
+      id: 1,
+      name: 'Team 1',
+      logo: 'Logo 1',
+    });
     expect(service.getTeamById).toHaveBeenCalledWith(1);
   });
 
   it('should create a new team', () => {
-    const name = 'Team 1';
-    expect(controller.createTeam(name)).toEqual({ id: 1, name });
-    expect(service.createTeam).toHaveBeenCalledWith(name);
+    const createTeamDto: CreateTeamDto = { name: 'Team 1', logo: 'Logo 1' };
+    expect(controller.createTeam(createTeamDto)).toEqual({
+      id: 1,
+      name: 'Team 1',
+      logo: 'Logo 1',
+    });
+    expect(service.createTeam).toHaveBeenCalledWith(createTeamDto);
   });
 
   it('should update a team by ID', () => {
-    const id = '1';
-    const name = 'Updated Team 1';
-    expect(controller.updateTeam(id, name)).toEqual({ id: 1, name });
-    expect(service.updateTeam).toHaveBeenCalledWith(1, name);
+    const id = 1;
+    const updateTeamDto: UpdateTeamDto = {
+      name: 'Updated Team 1',
+      logo: 'Updated Logo 1',
+    };
+    expect(controller.updateTeam(id, updateTeamDto)).toEqual({
+      id: 1,
+      name: 'Updated Team 1',
+      logo: 'Updated Logo 1',
+    });
+    expect(service.updateTeam).toHaveBeenCalledWith(1, updateTeamDto);
   });
 
   it('should delete a team by ID', () => {
-    const id = '1';
-    expect(controller.deleteTeam(id)).toEqual({ id: 1, name: 'Team 1' });
+    const id = 1;
+    expect(controller.deleteTeam(id)).toEqual({
+      id: 1,
+      name: 'Team 1',
+      logo: 'Logo 1',
+    });
     expect(service.deleteTeam).toHaveBeenCalledWith(1);
   });
 
   it('should throw an error if team not found by ID', () => {
-    const id = '999';
+    const id = 999;
     jest.spyOn(service, 'getTeamById').mockImplementation(() => {
       throw new NotFoundException(`Team with ID ${id} not found`);
     });
@@ -80,17 +112,22 @@ describe('TeamsController', () => {
   });
 
   it('should throw an error if team to update not found', () => {
-    const id = '999';
-    const name = 'Updated Team 999';
+    const id = 999;
+    const updateTeamDto: UpdateTeamDto = {
+      name: 'Updated Team 999',
+      logo: 'Updated Logo 999',
+    };
     jest.spyOn(service, 'updateTeam').mockImplementation(() => {
       throw new NotFoundException(`Team with ID ${id} not found`);
     });
-    expect(() => controller.updateTeam(id, name)).toThrow(NotFoundException);
-    expect(service.updateTeam).toHaveBeenCalledWith(999, name);
+    expect(() => controller.updateTeam(id, updateTeamDto)).toThrow(
+      NotFoundException,
+    );
+    expect(service.updateTeam).toHaveBeenCalledWith(999, updateTeamDto);
   });
 
   it('should throw an error if team to delete not found', () => {
-    const id = '999';
+    const id = 999;
     jest.spyOn(service, 'deleteTeam').mockImplementation(() => {
       throw new NotFoundException(`Team with ID ${id} not found`);
     });

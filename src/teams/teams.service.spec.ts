@@ -1,5 +1,6 @@
 import { TeamsService } from './teams.service';
 import { NotFoundException } from '@nestjs/common';
+import { CreateTeamDto, UpdateTeamDto } from './dto/teams.dto';
 
 describe('TeamsService', () => {
   let service: TeamsService;
@@ -17,15 +18,19 @@ describe('TeamsService', () => {
   });
 
   it('should create a new team', () => {
-    const team = service.createTeam('Team 1');
-    expect(team).toEqual({ id: 1, name: 'Team 1' });
-    expect(service.getAllTeams()).toEqual([{ id: 1, name: 'Team 1' }]);
+    const createTeamDto: CreateTeamDto = { name: 'Team 1', logo: 'Logo 1' };
+    const team = service.createTeam(createTeamDto);
+    expect(team).toEqual({ id: 1, name: 'Team 1', logo: 'Logo 1' });
+    expect(service.getAllTeams()).toEqual([
+      { id: 1, name: 'Team 1', logo: 'Logo 1' },
+    ]);
   });
 
   it('should return a team by ID', () => {
-    service.createTeam('Team 1');
+    const createTeamDto: CreateTeamDto = { name: 'Team 1', logo: 'Logo 1' };
+    service.createTeam(createTeamDto);
     const team = service.getTeamById(1);
-    expect(team).toEqual({ id: 1, name: 'Team 1' });
+    expect(team).toEqual({ id: 1, name: 'Team 1', logo: 'Logo 1' });
   });
 
   it('should throw an error if team not found by ID', () => {
@@ -33,22 +38,38 @@ describe('TeamsService', () => {
   });
 
   it('should update a team by ID', () => {
-    service.createTeam('Team 1');
-    const updatedTeam = service.updateTeam(1, 'Updated Team 1');
-    expect(updatedTeam).toEqual({ id: 1, name: 'Updated Team 1' });
-    expect(service.getAllTeams()).toEqual([{ id: 1, name: 'Updated Team 1' }]);
+    const createTeamDto: CreateTeamDto = { name: 'Team 1', logo: 'Logo 1' };
+    service.createTeam(createTeamDto);
+    const updateTeamDto: UpdateTeamDto = {
+      name: 'Updated Team 1',
+      logo: 'Updated Logo 1',
+    };
+    const updatedTeam = service.updateTeam(1, updateTeamDto);
+    expect(updatedTeam).toEqual({
+      id: 1,
+      name: 'Updated Team 1',
+      logo: 'Updated Logo 1',
+    });
+    expect(service.getAllTeams()).toEqual([
+      { id: 1, name: 'Updated Team 1', logo: 'Updated Logo 1' },
+    ]);
   });
 
   it('should throw an error if team to update not found', () => {
-    expect(() => service.updateTeam(999, 'Updated Team 999')).toThrow(
+    const updateTeamDto: UpdateTeamDto = {
+      name: 'Updated Team 999',
+      logo: 'Updated Logo 999',
+    };
+    expect(() => service.updateTeam(999, updateTeamDto)).toThrow(
       NotFoundException,
     );
   });
 
   it('should delete a team by ID', () => {
-    service.createTeam('Team 1');
+    const createTeamDto: CreateTeamDto = { name: 'Team 1', logo: 'Logo 1' };
+    service.createTeam(createTeamDto);
     const deletedTeam = service.deleteTeam(1);
-    expect(deletedTeam).toEqual({ id: 1, name: 'Team 1' });
+    expect(deletedTeam).toEqual({ id: 1, name: 'Team 1', logo: 'Logo 1' });
     expect(service.getAllTeams()).toEqual([]);
   });
 
