@@ -103,6 +103,9 @@ CREATE TABLE "Division" (
 CREATE UNIQUE INDEX "Team_name_key" ON "Team"("name");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Player_name_key" ON "Player"("name");
+
+-- CreateIndex
 CREATE INDEX "Player_teamId_idx" ON "Player"("teamId");
 
 -- CreateIndex

@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { SudoModule } from './sudo/sudo.module';
-import { PlayersModule } from './players/players.module';
+import { PlayerModule } from './player/player.module';
 
 @Module({
-  imports: [SudoModule, PlayersModule],
+  imports: [SudoModule, PlayerModule],
 })
 export class AppModule {}

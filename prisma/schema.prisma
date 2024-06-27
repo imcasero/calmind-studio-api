@@ -12,7 +12,7 @@ datasource db {
 
 model Team {
   id        Int      @id @default(autoincrement())
-  name      String
+  name      String   @unique
   logo      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -23,13 +23,11 @@ model Team {
   // Relación con Match
   matches1 Match[] @relation("MatchTeam1")
   matches2 Match[] @relation("MatchTeam2")
-
-  @@unique([name])
 }
 
 model Player {
   id        Int      @id @default(autoincrement())
-  name      String
+  name      String   @unique
   teamId    Int
   role      String
   createdAt DateTime @default(now())
